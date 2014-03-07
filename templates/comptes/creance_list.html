@@ -1,0 +1,34 @@
+{% extends "home.html" %}
+{% load humanize %}
+
+{% block content %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Créancier</th>
+                <th>Description</th>
+                <th>Moment</th>
+                <th>Débiteurs</th>
+                <th>Nombre de parts</th>
+                <th>Valeur d’une part</th>
+                <th class="pull-right">Montant</th>
+                <th>Valide</th>
+                <th>Vérifiée</th>
+            </tr>
+        </thead>
+        <tbody>{% for creance in object_list %}
+            <tr>
+                <td>{{ creance.creancier }}</td>
+                <td>{{ creance.description }}</td>
+                <td>{{ creance.moment|naturaltime }}</td>
+                <td>{{ creance.debiteurs }}</td>
+                <td>{{ creance.nombre_parts }}</td>
+                <td>{{ creance.valeur_part }}</td>
+                <td class="euro">{{ creance.montant }}</td>
+                <td>{{ creance.valide|yesno:"✔,✘" }}</td>
+                <td>{{ creance.checked|yesno:"✔,✘" }}</td>
+            </tr>
+        {% endfor %}</tbody>
+    </table>
+    <a href="{% url 'creance_create' %}"><button class="btn btn-default">Ajouter une créance</button></a>
+{% endblock %}

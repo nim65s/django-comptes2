@@ -1,0 +1,30 @@
+{% extends "home.html" %}
+{% load humanize %}
+
+{% block content %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Créance</th>
+                <th>Débiteur</th>
+                <th>Parts</th>
+                <th>Valeur d’une part</th>
+                <th class="pull-right">Montant</th>
+                <th>Valide</th>
+                <th>Vérifiée</th>
+            </tr>
+        </thead>
+        <tbody>{% for dette in object_list %}
+            <tr>
+                <td><a href="{{ dette.creance.get_absolute_url }}">{{ dette.creance }}</a></td>
+                <td>{{ dette.debiteur }}</td>
+                <td>{{ dette.parts }}</td>
+                <td>{{ dette.creance.valeur_part }}</td>
+                <td class="euro">{{ dette.valeur }}</td>
+                <td>{{ dette.valide|yesno:"✔,✘" }}</td>
+                <td>{{ dette.creance.checked|yesno:"✔,✘" }}</td>
+            </tr>
+        {% endfor %}</tbody>
+    </table>
+    <a href="{% url 'dette_create' %}"><button class="btn btn-default">Ajouter une dette</button></a>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "home.html" %}
+{% load humanize comptes %}
+
+{% block content %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Créditeur</th>
+                <th>Crédité</th>
+                <th class="pull-right">Montant</th>
+                <th>Moment</th>
+                <th>Valide pour le créditeur</th>
+                <th>Valide pour le crédité</th>
+                <th>Valider</th>
+            </tr>
+        </thead>
+        <tbody>{% for remboursement in object_list %}
+            <tr>
+                <td>{{ remboursement.crediteur }}</td>
+                <td>{{ remboursement.credite }}</td>
+                <td class="euro">{{ remboursement.montant }}</td>
+                <td>{{ remboursement.moment|naturaltime }}</td>
+                <td>{{ remboursement.valide_crediteur|yesno:"✔,✘" }}</td>
+                <td>{{ remboursement.valide_credite|yesno:"✔,✘" }}</td>
+                <td>{% if request.user|peut_valider:remboursement %}<a href="{% url 'remboursement_validate' remboursement.pk %}">Valider</a>{% endif %}
+                </td>
+            </tr>
+        {% endfor %}</tbody>
+    </table>
+    <a href="{% url 'remboursement_create' %}"><button class="btn btn-default">Ajouter un remboursement</button></a>
+{% endblock %}
