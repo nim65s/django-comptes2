@@ -28,7 +28,7 @@ class CreanceListView(IsPortailUserMixin, ListView):
     model = Creance
 
     def get_queryset(self, **kwargs):
-        return Creance.objects.filter(Q(creancier=self.request.user) | Q(dette__debiteur=self.request.user))
+        return Creance.objects.filter(Q(creancier__user=self.request.user) | Q(dette__debiteur__user=self.request.user)).distinct()
 
 
 class CreanceCreateView(IsPortailUserMixin, CreateView):
@@ -63,15 +63,17 @@ class DetteCreateView(IsPortailUserMixin, CreateView):
     model = Dette
     fields = ["creance", "debiteur", "parts"]
 
-    def get_initial(self):
-        init = super(DetteCreateView, self).get_initial()
-        init.creance = get_object_or_404(Creance, pk=self.kwargs['creance'])
-        return init
-
     def form_valid(self, form):
-        if form.instance.debiteur == self.user:
+        if form.instance.debiteur == self.request.user:
             form.instance.valide = True
         return super(DetteCreateView, self).form_valid(form)
+
+
+class DetteCreateFromCreanceView(DetteCreateView):
+    def get_initial(self):
+        init = super(DetteCreateFromCreanceView, self).get_initial()
+        init['creance'] = get_object_or_404(Creance, pk=int(self.kwargs['creance']))
+        return init
 
 
 class DetteValidateView(IsPortailUserMixin, UpdateView):

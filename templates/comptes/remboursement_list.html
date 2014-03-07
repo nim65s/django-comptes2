@@ -18,7 +18,7 @@
             <tr>
                 <td>{{ remboursement.crediteur }}</td>
                 <td>{{ remboursement.credite }}</td>
-                <td class="euro">{{ remboursement.montant }}</td>
+                <td class="euro">{{ remboursement.montant|floatformat:2 }}</td>
                 <td>{{ remboursement.moment|naturaltime }}</td>
                 <td>{{ remboursement.valide_crediteur|yesno:"✔,✘" }}</td>
                 <td>{{ remboursement.valide_credite|yesno:"✔,✘" }}</td>

@@ -14,6 +14,7 @@
                 <th class="pull-right">Montant</th>
                 <th>Valide</th>
                 <th>Vérifiée</th>
+                <th>Ajouter dette</th>
             </tr>
         </thead>
         <tbody>{% for creance in object_list %}
@@ -23,10 +24,11 @@
                 <td>{{ creance.moment|naturaltime }}</td>
                 <td>{{ creance.debiteurs }}</td>
                 <td>{{ creance.nombre_parts }}</td>
-                <td>{{ creance.valeur_part }}</td>
-                <td class="euro">{{ creance.montant }}</td>
+                <td class="euro">{{ creance.valeur_part|floatformat:2 }}</td>
+                <td class="euro">{{ creance.montant|floatformat:2 }}</td>
                 <td>{{ creance.valide|yesno:"✔,✘" }}</td>
                 <td>{{ creance.checked|yesno:"✔,✘" }}</td>
+                <td><a href="{% url 'dette_create_from_creance' creance.pk %}">Ajouter une dette</a></td>
             </tr>
         {% endfor %}</tbody>
     </table>

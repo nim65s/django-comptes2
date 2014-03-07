@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     url(r'^dettes$', DetteListView.as_view(), name="dette_list"),
     #url(r'^dettes/(?P<pk>\d+)$', DetteDetailView.as_view(), name="dette_detail"),
     url(r'^dettes/ajouter$', DetteCreateView.as_view(), name="dette_create"),
+    url(r'^dettes/ajouter/(?P<creance>\d+)$', DetteCreateFromCreanceView.as_view(), name="dette_create_from_creance"),
     url(r'^dettes/valider/(?P<pk>\d+)$', DetteValidateView.as_view(), name="dette_validate"),
 
     url(r'^remboursements$', RemboursementListView.as_view(), name="remboursement_list"),
