@@ -44,6 +44,9 @@ class Creance(Model):
     valide = BooleanField(default=False)  # Validée par le créancier
     checked = BooleanField(default=False)  # Validée par tout le monde
 
+    def validable(self, user):
+        return self.creancier.user == user and not self.valide
+
     def save(self, *args, **kwargs):
         self.checked = self.valide and self.dette_set.count() > 0 and all([dette.valide for dette in self.dette_set.all()])
 
@@ -79,6 +82,9 @@ class Dette(Model):
     debiteur = ForeignKey(PortailUser, verbose_name=u"Débiteur")
     parts = IntegerField(u"Nombre de parts", default=1)
     valide = BooleanField(default=False)
+
+    def validable(self, user):
+        return self.debiteur.user == user and not self.valide
 
     def save(self, *args, **kwargs):
         super(Dette, self).save(*args, **kwargs)

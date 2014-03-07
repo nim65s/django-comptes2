@@ -1,5 +1,5 @@
 {% extends "home.html" %}
-{% load humanize %}
+{% load humanize comptes %}
 
 {% block content %}
     <table class="table table-striped">
@@ -12,6 +12,7 @@
                 <th class="pull-right">Montant</th>
                 <th>Valide</th>
                 <th>Vérifiée</th>
+                <th>Valider</th>
             </tr>
         </thead>
         <tbody>{% for dette in object_list %}
@@ -23,6 +24,7 @@
                 <td class="euro">{{ dette.valeur|floatformat:2 }}</td>
                 <td>{{ dette.valide|yesno:"✔,✘" }}</td>
                 <td>{{ dette.creance.checked|yesno:"✔,✘" }}</td>
+                <td>{% if request.user|peut_valider:dette %}<a href="{% url 'dette_validate' dette.pk %}">Valider</a>{% endif %}</td>
             </tr>
         {% endfor %}</tbody>
     </table>

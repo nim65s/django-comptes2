@@ -1,5 +1,5 @@
 {% extends "home.html" %}
-{% load humanize %}
+{% load humanize comptes %}
 
 {% block content %}
     <table class="table table-striped">
@@ -15,6 +15,7 @@
                 <th>Valide</th>
                 <th>Vérifiée</th>
                 <th>Ajouter dette</th>
+                <th>Valider</th>
             </tr>
         </thead>
         <tbody>{% for creance in object_list %}
@@ -29,6 +30,7 @@
                 <td>{{ creance.valide|yesno:"✔,✘" }}</td>
                 <td>{{ creance.checked|yesno:"✔,✘" }}</td>
                 <td><a href="{% url 'dette_create_from_creance' creance.pk %}">Ajouter une dette</a></td>
+                <td>{% if request.user|peut_valider:creance %}<a href="{% url 'creance_validate' creance.pk %}">Valider</a>{% endif %}</td>
             </tr>
         {% endfor %}</tbody>
     </table>

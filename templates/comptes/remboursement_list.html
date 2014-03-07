@@ -22,8 +22,7 @@
                 <td>{{ remboursement.moment|naturaltime }}</td>
                 <td>{{ remboursement.valide_crediteur|yesno:"✔,✘" }}</td>
                 <td>{{ remboursement.valide_credite|yesno:"✔,✘" }}</td>
-                <td>{% if request.user|peut_valider:remboursement %}<a href="{% url 'remboursement_validate' remboursement.pk %}">Valider</a>{% endif %}
-                </td>
+                <td>{% if request.user|peut_valider:remboursement %}<a href="{% url 'remboursement_validate' remboursement.pk %}">Valider</a>{% endif %}</td>
             </tr>
         {% endfor %}</tbody>
     </table>

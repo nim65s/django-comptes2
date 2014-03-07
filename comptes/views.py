@@ -6,7 +6,8 @@ from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from django.views.generic import CreateView, DetailView, ListView, View
+from django.views.generic.detail import SingleObjectMixin
 
 from .models import *
 
@@ -41,14 +42,15 @@ class CreanceCreateView(IsPortailUserMixin, CreateView):
         return super(CreanceCreateView, self).form_valid(form)
 
 
-class CreanceValidateView(IsPortailUserMixin, UpdateView):
+class CreanceValidateView(IsPortailUserMixin, SingleObjectMixin, View):
     model = Creance
-    fields = ["valide"]
 
-    def form_valid(self, form):
-        if form.instance.creancier != self.request.user:
-            raise SuspiciousOperation("Quelqu’un essaye de valide une créance qui n’est pas à lui")
-        return super(CreanceValidateView, self).form_valid(form)
+    def get(self, request, *args, **kwargs):
+        o = self.get_object()
+        if o.creancier.user == request.user:
+            o.valide = True
+            o.save()
+        return redirect(reverse('creance_list'))
 
 
 #class DetteDetailView(IsPortailUserMixin, DetailView):
@@ -76,14 +78,15 @@ class DetteCreateFromCreanceView(DetteCreateView):
         return init
 
 
-class DetteValidateView(IsPortailUserMixin, UpdateView):
+class DetteValidateView(IsPortailUserMixin, SingleObjectMixin, View):
     model = Dette
-    fields = ["valide"]
 
-    def form_valid(self, form):
-        if form.instance.debiteur != self.request.user:
-            raise SuspiciousOperation("Quelqu’un essaye de valide une dette qui n’est pas à lui")
-        return super(DetteValidateView, self).form_valid(form)
+    def get(self, request, *args, **kwargs):
+        o = self.get_object()
+        if o.debiteur.user == request.user:
+            o.valide = True
+            o.save()
+        return redirect(reverse('dette_list'))
 
 
 #class RemboursementDetailView(IsPortailUserMixin, DetailView):
@@ -106,7 +109,7 @@ class RemboursementCreateView(IsPortailUserMixin, CreateView):
         return super(RemboursementCreateView, self).form_valid(form)
 
 
-class RemboursementValidateView(IsPortailUserMixin, DetailView):
+class RemboursementValidateView(IsPortailUserMixin, SingleObjectMixin, View):
     model = Remboursement
 
     def get(self, request, *args, **kwargs):
