@@ -43,7 +43,7 @@ class CreanceCreateView(IsPortailUserMixin, CreateView):
     fields = ["creancier", "montant", "description", "moment"]
 
     def form_valid(self, form):
-        if form.instance.creancier == self.request.user:
+        if form.instance.creancier.user == self.request.user:
             form.instance.valide = True
         return super(CreanceCreateView, self).form_valid(form)
 
@@ -65,7 +65,7 @@ class DetteCreateView(IsPortailUserMixin, CreateView):
     fields = ["creance", "debiteur", "parts"]
 
     def form_valid(self, form):
-        if form.instance.debiteur == self.request.user:
+        if form.instance.debiteur.user == self.request.user:
             form.instance.valide = True
         return super(DetteCreateView, self).form_valid(form)
 
@@ -91,12 +91,12 @@ class RemboursementListView(IsPortailUserMixin, ListView):
 
 class RemboursementCreateView(IsPortailUserMixin, CreateView):
     model = Remboursement
-    fields = ["crediteur", "credite", "montant", "moment"]
+    fields = ["crediteur", "montant", "credite", "moment"]
 
     def form_valid(self, form):
-        if form.instance.credite == self.request.user:
+        if form.instance.credite.user == self.request.user:
             form.instance.valide_credite = True
-        if form.instance.crediteur == self.request.user:
+        if form.instance.crediteur.user == self.request.user:
             form.instance.valide_crediteur = True
         return super(RemboursementCreateView, self).form_valid(form)
 
