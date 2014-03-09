@@ -13,6 +13,7 @@ class PortailUser(Model):
     solde = DecimalField(max_digits=8, decimal_places=2, default=0)
 
     def maj_solde(self):
+        ancien_solde = self.solde
         dettes = sum([dette.valeur() for dette in self.dette_set.filter(creance__checked=True)])
         debits = self.debits.filter(valide_crediteur=True, valide_credite=True).aggregate(s=Sum('montant'))['s']
         credits = self.credits.filter(valide_crediteur=True, valide_credite=True).aggregate(s=Sum('montant'))['s']
@@ -26,8 +27,10 @@ class PortailUser(Model):
             somme += debits
         if credits:
             somme -= credits
-        self.solde = somme
-        self.save()
+        if ancien_solde != somme:
+            print u"Le solde de %s est passé de %.2f € à %.2f €" % (self.user, ancien_solde, somme)
+            self.solde = somme
+            self.save()
 
     def __unicode__(self):
         return u"%s" % self.user
@@ -57,7 +60,7 @@ class Creance(Model):
             dette.debiteur.maj_solde()
 
     def debiteurs(self):
-        liste = [u'<a href="%s">%s (%i part(s))</a>' % (d.get_absolute_url(), d.debiteur, d.parts) for d in self.dette_set.all()]
+        liste = [u'<a href="%s">%s (%i part%s)</a>' % (d.get_absolute_url(), d.debiteur, d.parts, 's' if d.parts != 1 else '') for d in self.dette_set.all()]
         return mark_safe(", ".join(liste))
 
     def nombre_parts(self):
@@ -67,7 +70,6 @@ class Creance(Model):
         return self.montant / self.nombre_parts()
 
     def get_absolute_url(self):
-        #return reverse('creance_detail', kwargs={'pk': self.pk})
         return reverse('creance_list')
 
     def __unicode__(self):
@@ -95,7 +97,6 @@ class Dette(Model):
         return self.parts * self.creance.valeur_part()
 
     def get_absolute_url(self):
-        #return reverse('dette_detail', kwargs={'pk': self.pk})
         return reverse('dette_list')
 
     def __unicode__(self):
@@ -103,6 +104,7 @@ class Dette(Model):
 
     class Meta:
         unique_together = ("creance", "debiteur")
+        ordering = ["creance", "parts"]
 
 
 class Remboursement(Model):
@@ -123,7 +125,6 @@ class Remboursement(Model):
         self.crediteur.maj_solde()
 
     def get_absolute_url(self):
-        #return reverse('remboursement_detail', kwargs={'pk': self.pk})
         return reverse('remboursement_list')
 
     def __unicode__(self):
