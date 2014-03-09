@@ -21,8 +21,14 @@ class PortailUserListView(IsPortailUserMixin, ListView):
     model = PortailUser
 
 
-#class CreanceDetailView(IsPortailUserMixin, DetailView):
-    #model = Creance
+class ValidateView(IsPortailUserMixin, SingleObjectMixin, View):
+    valide = None
+
+    def get(self, request, *args, **kwargs):
+        o = self.get_object()
+        self.validate(o)
+        o.save()
+        return redirect(o.get_absolute_url())
 
 
 class CreanceListView(IsPortailUserMixin, ListView):
@@ -42,19 +48,12 @@ class CreanceCreateView(IsPortailUserMixin, CreateView):
         return super(CreanceCreateView, self).form_valid(form)
 
 
-class CreanceValidateView(IsPortailUserMixin, SingleObjectMixin, View):
+class CreanceValidateView(ValidateView):
     model = Creance
 
-    def get(self, request, *args, **kwargs):
-        o = self.get_object()
-        if o.creancier.user == request.user:
-            o.valide = True
-            o.save()
-        return redirect(reverse('creance_list'))
-
-
-#class DetteDetailView(IsPortailUserMixin, DetailView):
-    #model = Dette
+    def validate(self, o):
+        if o.creancier.user == self.request.user:
+            o.valide = self.valide
 
 
 class DetteListView(IsPortailUserMixin, ListView):
@@ -78,19 +77,12 @@ class DetteCreateFromCreanceView(DetteCreateView):
         return init
 
 
-class DetteValidateView(IsPortailUserMixin, SingleObjectMixin, View):
+class DetteValidateView(ValidateView):
     model = Dette
 
-    def get(self, request, *args, **kwargs):
-        o = self.get_object()
-        if o.debiteur.user == request.user:
-            o.valide = True
-            o.save()
-        return redirect(reverse('dette_list'))
-
-
-#class RemboursementDetailView(IsPortailUserMixin, DetailView):
-    #model = Remboursement
+    def validate(self, o):
+        if o.debiteur.user == self.request.user:
+            o.valide = self.valide
 
 
 class RemboursementListView(IsPortailUserMixin, ListView):
@@ -109,15 +101,11 @@ class RemboursementCreateView(IsPortailUserMixin, CreateView):
         return super(RemboursementCreateView, self).form_valid(form)
 
 
-class RemboursementValidateView(IsPortailUserMixin, SingleObjectMixin, View):
+class RemboursementValidateView(ValidateView):
     model = Remboursement
 
-    def get(self, request, *args, **kwargs):
-        o = self.get_object()
-        if o.crediteur.user == request.user:
-            o.valide_crediteur = True
-            o.save()
-        if o.credite.user == request.user:
-            o.valide_credite = True
-            o.save()
-        return redirect(reverse('remboursement_list'))
+    def validate(self, o):
+        if o.crediteur.user == self.request.user:
+            o.valide_crediteur = self.valide
+        if o.credite.user == self.request.user:
+            o.valide_credite = self.valide

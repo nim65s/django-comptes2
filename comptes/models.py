@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.db.models import BooleanField, DateTimeField, DecimalField, ForeignKey, IntegerField, Model, Sum, TextField
+from django.db.models import BooleanField, DateTimeField, DecimalField, ForeignKey, IntegerField, Model, NullBooleanField, Sum, TextField
 from django.utils.html import mark_safe
 
 
@@ -41,14 +41,14 @@ class Creance(Model):
     montant = DecimalField(max_digits=8, decimal_places=2)
     description = TextField()
     moment = DateTimeField()
-    valide = BooleanField(default=False)  # Validée par le créancier
+    valide = NullBooleanField(default=None)  # Validée par le créancier
     checked = BooleanField(default=False)  # Validée par tout le monde
 
     def validable(self, user):
-        return self.creancier.user == user and not self.valide
+        return self.creancier.user == user
 
     def save(self, *args, **kwargs):
-        self.checked = self.valide and self.dette_set.count() > 0 and all([dette.valide for dette in self.dette_set.all()])
+        self.checked = bool(self.valide and self.dette_set.count() > 0 and all([dette.valide for dette in self.dette_set.all()]))
 
         super(Creance, self).save(*args, **kwargs)
 
@@ -81,10 +81,10 @@ class Dette(Model):
     creance = ForeignKey(Creance, verbose_name=u"Créance")
     debiteur = ForeignKey(PortailUser, verbose_name=u"Débiteur")
     parts = IntegerField(u"Nombre de parts", default=1)
-    valide = BooleanField(default=False)
+    valide = NullBooleanField(default=None)
 
     def validable(self, user):
-        return self.debiteur.user == user and not self.valide
+        return self.debiteur.user == user
 
     def save(self, *args, **kwargs):
         super(Dette, self).save(*args, **kwargs)
@@ -110,13 +110,11 @@ class Remboursement(Model):
     credite = ForeignKey(PortailUser, verbose_name=u"Crédité", related_name='credits')
     montant = DecimalField(max_digits=8, decimal_places=2)
     moment = DateTimeField()
-    valide_crediteur = BooleanField(default=False)
-    valide_credite = BooleanField(default=False)
+    valide_crediteur = NullBooleanField(default=None)
+    valide_credite = NullBooleanField(default=None)
 
     def validable(self, user):
-        crediteur = self.crediteur.user == user and not self.valide_crediteur
-        credite = self.credite.user == user and not self.valide_credite
-        return crediteur or credite
+        return self.crediteur.user == user or self.credite.user == user
 
     def save(self, *args, **kwargs):
         super(Remboursement, self).save(*args, **kwargs)

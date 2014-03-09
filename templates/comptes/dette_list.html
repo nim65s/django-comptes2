@@ -7,11 +7,11 @@
             <tr>
                 <th>Créance</th>
                 <th>Débiteur</th>
-                <th>Parts</th>
-                <th>Valeur d’une part</th>
-                <th class="pull-right">Montant</th>
-                <th>Valide</th>
-                <th>Vérifiée</th>
+                <th style="text-align: center;">Parts</th>
+                <th style="text-align: right;">Valeur d’une part</th>
+                <th style="text-align: right;">Montant</th>
+                <th style="text-align: center;">Valide</th>
+                <th style="text-align: center;">Vérifiée</th>
                 <th>Valider</th>
             </tr>
         </thead>
@@ -19,12 +19,15 @@
             <tr>
                 <td><a href="{{ dette.creance.get_absolute_url }}">{{ dette.creance }}</a></td>
                 <td>{{ dette.debiteur }}</td>
-                <td>{{ dette.parts }}</td>
+                <td style="text-align: center;">{{ dette.parts }}</td>
                 <td class="euro">{{ dette.creance.valeur_part|floatformat:2 }}</td>
                 <td class="euro">{{ dette.valeur|floatformat:2 }}</td>
-                <td>{{ dette.valide|yesno:"✔,✘" }}</td>
-                <td>{{ dette.creance.checked|yesno:"✔,✘" }}</td>
-                <td>{% if request.user|peut_valider:dette %}<a href="{% url 'dette_validate' dette.pk %}">Valider</a>{% endif %}</td>
+                <td style="text-align: center;">{{ dette.valide|yesno:"✔,✘," }}</td>
+                <td style="text-align: center;">{{ dette.creance.checked|yesno:"✔,✘," }}</td>
+                <td>{% if request.user|peut_valider:dette %}
+                    <a href="{% url 'dette_ok' dette.pk %}">Oui</a>
+                    <a href="{% url 'dette_ko' dette.pk %}">Non</a>
+                {% endif %}</td>
             </tr>
         {% endfor %}</tbody>
     </table>

@@ -3,8 +3,8 @@
 {% block content %}
     <table class="table table-striped">
         <thead><tr><th>User</th><th class="pull-right">Solde</th></tr></thead>
-        <tbody>{% for user in object_list %}
+        <tbody>{% for user in object_list %}{% if user.solde %}
             <tr><td>{{ user }}</td><td class="euro">{{ user.solde }}</td></tr>
-        {% endfor %}</tbody>
+        {% endif %}{% endfor %}</tbody>
     </table>
 {% endblock %}

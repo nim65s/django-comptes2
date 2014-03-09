@@ -9,11 +9,11 @@
                 <th>Description</th>
                 <th>Moment</th>
                 <th>Débiteurs</th>
-                <th>Nombre de parts</th>
-                <th>Valeur d’une part</th>
-                <th class="pull-right">Montant</th>
-                <th>Valide</th>
-                <th>Vérifiée</th>
+                <th style="text-align: center;">Nombre de parts</th>
+                <th style="text-align: right;">Valeur d’une part</th>
+                <th style="text-align: right;">Montant</th>
+                <th style="text-align: center;">Valide</th>
+                <th style="text-align: center;">Vérifiée</th>
                 <th>Ajouter dette</th>
                 <th>Valider</th>
             </tr>
@@ -24,13 +24,16 @@
                 <td>{{ creance.description }}</td>
                 <td>{{ creance.moment|naturaltime }}</td>
                 <td>{{ creance.debiteurs }}</td>
-                <td>{{ creance.nombre_parts }}</td>
+                <td style="text-align: center;">{{ creance.nombre_parts }}</td>
                 <td class="euro">{{ creance.valeur_part|floatformat:2 }}</td>
                 <td class="euro">{{ creance.montant|floatformat:2 }}</td>
-                <td>{{ creance.valide|yesno:"✔,✘" }}</td>
-                <td>{{ creance.checked|yesno:"✔,✘" }}</td>
+                <td style="text-align: center;">{{ creance.valide|yesno:"✔,✘," }}</td>
+                <td style="text-align: center;">{{ creance.checked|yesno:"✔,✘," }}</td>
                 <td><a href="{% url 'dette_create_from_creance' creance.pk %}">Ajouter une dette</a></td>
-                <td>{% if request.user|peut_valider:creance %}<a href="{% url 'creance_validate' creance.pk %}">Valider</a>{% endif %}</td>
+                <td>{% if request.user|peut_valider:creance %}
+                    <a href="{% url 'creance_ok' creance.pk %}">Oui</a>
+                    <a href="{% url 'creance_ko' creance.pk %}">Non</a>
+                {% endif %}</td>
             </tr>
         {% endfor %}</tbody>
     </table>
