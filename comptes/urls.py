@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import include, patterns, url
 from django.contrib import admin
 
@@ -29,3 +30,8 @@ urlpatterns = patterns('',
     url(r'^remboursements/ok/(?P<pk>\d+)$', RemboursementValidateView.as_view(valide=True), name="remboursement_ok"),
     url(r'^remboursements/ko/(?P<pk>\d+)$', RemboursementValidateView.as_view(valide=False), name="remboursement_ko"),
 )
+
+if settings.DEBUG:
+    urlpatterns = patterns('',
+        url(r'', include('django.contrib.staticfiles.urls')),
+    ) + urlpatterns

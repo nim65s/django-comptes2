@@ -87,6 +87,7 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (join(BASE_DIR, "static"),)
 TEMPLATE_DIRS = (join(BASE_DIR, 'templates'),)
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -99,3 +100,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
         'django.core.context_processors.tz',
         'django.contrib.messages.context_processors.messages',
         )
+
+BOOTSTRAP3 = {}
+if DEBUG:
+    BOOTSTRAP3['jquery_url'] = "/static/js/jquery.min.js"
+    BOOTSTRAP3['base_url'] = "/static/"
+else:
+    BOOTSTRAP3['jquery_url'] = "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"
