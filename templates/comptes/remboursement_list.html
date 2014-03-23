@@ -20,12 +20,9 @@
                 <td class="euro">{{ remboursement.montant|floatformat:2 }}</td>
                 <td>{{ remboursement.credite }}</td>
                 <td>{{ remboursement.moment|naturaltime }}</td>
-                <td style="text-align: center;">{{ remboursement.valide_crediteur|yesno:"✔,✘," }}</td>
-                <td style="text-align: center;">{{ remboursement.valide_credite|yesno:"✔,✘," }}</td>
-                <td>{% if request.user|peut_valider:remboursement %}
-                    <a href="{% url 'remboursement_ok' remboursement.pk %}">Oui</a>
-                    <a href="{% url 'remboursement_ko' remboursement.pk %}">Non</a>
-                {% endif %}</td>
+                <td style="text-align: center;">{{ remboursement.valide_crediteur|yesno:"✔,✘,?" }}</td>
+                <td style="text-align: center;">{{ remboursement.valide_credite|yesno:"✔,✘,?" }}</td>
+                <td>{% valider request.user remboursement %}</td>
             </tr>
         {% endfor %}</tbody>
     </table>

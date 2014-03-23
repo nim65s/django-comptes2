@@ -22,12 +22,9 @@
                 <td style="text-align: center;">{{ dette.parts }}</td>
                 <td class="euro">{{ dette.creance.valeur_part|floatformat:2 }}</td>
                 <td class="euro">{{ dette.valeur|floatformat:2 }}</td>
-                <td style="text-align: center;">{{ dette.valide|yesno:"✔,✘," }}</td>
-                <td style="text-align: center;">{{ dette.creance.checked|yesno:"✔,✘," }}</td>
-                <td>{% if request.user|peut_valider:dette %}
-                    <a href="{% url 'dette_ok' dette.pk %}">Oui</a>
-                    <a href="{% url 'dette_ko' dette.pk %}">Non</a>
-                {% endif %}</td>
+                <td style="text-align: center;">{{ dette.valide|yesno:"✔,✘,?" }}</td>
+                <td style="text-align: center;">{{ dette.creance.checked|yesno:"✔,✘,?" }}</td>
+                <td>{% valider request.user dette %}</td>
             </tr>
         {% endfor %}</tbody>
     </table>

@@ -27,13 +27,10 @@
                 <td style="text-align: center;">{{ creance.nombre_parts }}</td>
                 <td class="euro">{{ creance.valeur_part|floatformat:2 }}</td>
                 <td class="euro">{{ creance.montant|floatformat:2 }}</td>
-                <td style="text-align: center;">{{ creance.valide|yesno:"✔,✘," }}</td>
-                <td style="text-align: center;">{{ creance.checked|yesno:"✔,✘," }}</td>
+                <td style="text-align: center;">{{ creance.valide|yesno:"✔,✘,?" }}</td>
+                <td style="text-align: center;">{{ creance.checked|yesno:"✔,✘,?" }}</td>
                 <td><a href="{% url 'dette_create_from_creance' creance.pk %}">Ajouter une dette</a></td>
-                <td>{% if request.user|peut_valider:creance %}
-                    <a href="{% url 'creance_ok' creance.pk %}">Oui</a>
-                    <a href="{% url 'creance_ko' creance.pk %}">Non</a>
-                {% endif %}</td>
+                <td>{% valider request.user creance %}</td>
             </tr>
         {% endfor %}</tbody>
     </table>
