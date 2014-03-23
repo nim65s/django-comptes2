@@ -2,6 +2,7 @@
 
 from braces.views import LoginRequiredMixin, UserPassesTestMixin
 
+from django.contrib import messages
 from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -28,6 +29,9 @@ class ValidateView(IsPortailUserMixin, SingleObjectMixin, View):
         o = self.get_object()
         self.validate(o)
         o.save()
+        validation = "Validation" if self.valide else "Invalidation"
+        messages.info(request, u"%s effectuée avec succès" % validation)
+        o.mail_users("%s de %s" % (validation, o.get_model_name()), u"%s a modifié «%s»" % (request.user, o))
         return redirect(o.get_absolute_url())
 
 

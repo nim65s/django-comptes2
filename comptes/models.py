@@ -2,9 +2,10 @@
 
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.db.models import BooleanField, DateTimeField, DecimalField, ForeignKey, IntegerField, Model, NullBooleanField, Sum, TextField
+from django.db.models import BooleanField, DateTimeField, DecimalField, ForeignKey, IntegerField, Manager, Model, NullBooleanField, Sum, TextField
 from django.utils.html import mark_safe
 
 
@@ -12,15 +13,30 @@ class CompteModel(Model):
     class Meta:
         abstract = True
 
+    def get_model_name(self):
+        return self.__class__.__name__.lower()
+
     def get_absolute_url(self):
         return self.get_list_url()  # temporaire
 
     def get_list_url(self):
-        return reverse(self.__class__.__name__.lower() + '_list')
+        return reverse(self.get_model_name() + '_list')
 
     def get_validate_urls(self):
-        nom = self.__class__.__name__.lower()
+        nom = self.get_model_name()
         return (reverse(nom + '_ok', kwargs={'pk': self.pk}), reverse(nom + '_ko', kwargs={'pk': self.pk}))
+
+    def mail_users(self, sujet, message):
+        for user in self.users():
+            if settings.DEBUG:
+                print u'mail to %s: "%s" %s' % (user.user.email, sujet, message)
+            else:
+                user.user.email_user(u'[Portail BDE][Comptes] ' + sujet, message + u"\n\nVotre solde est désormais de %.2f €" % user.solde)
+
+    def save(self, *args, **kwargs):
+        super(CompteModel, self).save(*args, **kwargs)
+        for user in self.users():
+            user.maj_solde()
 
 
 class PortailUser(Model):
@@ -62,20 +78,19 @@ class Creance(CompteModel):
     valide = NullBooleanField(default=None)  # Validée par le créancier
     checked = BooleanField(default=False)  # Validée par tout le monde
 
+    def users(self):
+        liste = [self.creancier]
+        return liste + [dette.debiteur for dette in self.dette_set.exclude(debiteur=self.creancier)]
+
     def validable(self, user):
         return self.creancier.user == user
 
     def save(self, *args, **kwargs):
         self.checked = bool(self.valide and self.dette_set.count() > 0 and all([dette.valide for dette in self.dette_set.all()]))
-
         super(Creance, self).save(*args, **kwargs)
 
-        self.creancier.maj_solde()
-        for dette in self.dette_set.all():
-            dette.debiteur.maj_solde()
-
     def debiteurs(self):
-        liste = [u'<a href="%s">%s (%i part%s)</a>' % (d.get_absolute_url(), d.debiteur, d.parts, 's' if d.parts != 1 else '') for d in self.dette_set.all()]
+        liste = [u'%s (%i part%s)' % (d.debiteur, d.parts, 's' if d.parts != 1 else '') for d in self.dette_set.all()]
         return mark_safe(", ".join(liste))
 
     def nombre_parts(self):
@@ -100,6 +115,9 @@ class Dette(CompteModel):
     debiteur = ForeignKey(PortailUser, verbose_name=u"Débiteur")
     parts = IntegerField(u"Nombre de parts", default=1)
     valide = NullBooleanField(default=None)
+
+    def users(self):
+        return self.creance.users()
 
     def validable(self, user):
         return self.debiteur.user == user
@@ -128,15 +146,11 @@ class Remboursement(CompteModel):
     valide_crediteur = NullBooleanField(default=None)
     valide_credite = NullBooleanField(default=None)
 
+    def users(self):
+        return [self.crediteur, self.credite]
+
     def validable(self, user):
-        print self.crediteur.user, self.credite.user, user
         return self.crediteur.user == user or self.credite.user == user
-
-    def save(self, *args, **kwargs):
-        super(Remboursement, self).save(*args, **kwargs)
-
-        self.credite.maj_solde()
-        self.crediteur.maj_solde()
 
     def __unicode__(self):
         return u"%s a remboursé %.2f € à %s" % (self.crediteur, self.montant, self.credite)
